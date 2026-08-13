@@ -1,0 +1,6 @@
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+lesson1/hello.txt
+lesson1/server_info.txt

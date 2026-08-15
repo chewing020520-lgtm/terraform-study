@@ -8,8 +8,8 @@ resource "local_file" "hello" {
 }
 
 resource "local_file" "server_info" {
-    filename = "${path.module}/server_info.txt"
-    content = "server name: ${random_pet.server_name.id}\n"
+  filename = "${path.module}/server_info.txt"
+  content  = "server name: ${random_pet.server_name.id}\n"
 }
 
 variable "env" {

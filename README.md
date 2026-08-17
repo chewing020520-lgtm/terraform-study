@@ -9,7 +9,8 @@ DevOps 엔지니어를 목표로 Terraform을 기초부터 학습하며 실습 �
 |---|---|---|
 | lesson1 | 기초 워크플로, 변수/출력, state | ✅ 완료 |
 | lesson2 | AWS 프로바이더, IAM, 첫 S3 버킷 | ✅ 완료 |
-| lesson3 | (예정) | 🔜 |
+| lesson3 | EC2 + 보안 그룹, data source, user_data | ✅ 완료 |
+| lesson4 | (예정) | 🔜 |
 
 ## lesson1 — 기초 워크플로
 
@@ -69,7 +70,37 @@ aws s3 ls           # 생성 확인
 terraform destroy   # 실습 후 정리 (과금 방지)
 ```
 
+## lesson3 — EC2 웹서버 배포
 
+data source로 최신 Amazon Linux 2023 AMI를 조회하고, 80번 포트를 연
+보안 그룹과 함께 EC2 인스턴스를 배포했다. user_data 부팅 스크립트로
+아파치 웹서버를 자동 설치해, 코드 한 파일로 공인 IP에서 접속 가능한
+웹페이지까지 띄우는 전 과정을 실습했다.
+
+**배운 것**
+
+- `resource`는 만들고 책임지는 것(state에 등록, destroy 대상),
+  `data`는 이미 있는 걸 읽어오기만 하는 것. AMI는 조회만 했으므로
+  destroy해도 지워지지 않는다.
+- plan의 `(known after apply)`는 "내가 정한 값"이 아니라 **AWS가
+  생성 시점에 정해주는 값**(public_ip 등)이라 미리 알 수 없다는 뜻.
+- 보안 그룹은 서버의 방화벽. `ingress`(들어오는 트래픽)와
+  `egress`(나가는 트래픽)를 나눠 정의하고, `0.0.0.0/0`은 전 세계
+  모든 IP 허용을 뜻한다 — 웹은 괜찮지만 SSH(22번)에 쓰면 사고.
+- `user_data`는 최초 부팅 시 한 번 실행되는 스크립트. 접속까지
+  2~3분 걸린 이유가 이 설치 스크립트 실행 시간이었다.
+- EC2는 시간 단위 과금이므로 실습 후 즉시 destroy. 종료 확인은
+  `aws ec2 describe-instances`로 검증.
+
+**실행 방법**
+
+```bash
+cd lesson3
+terraform init
+terraform plan
+terraform apply      # 완료 후 출력된 public_ip로 http:// 접속
+terraform destroy    # 확인 즉시 정리 (시간 과금!)
+```
 
 ## 리포 관리 원칙
 
